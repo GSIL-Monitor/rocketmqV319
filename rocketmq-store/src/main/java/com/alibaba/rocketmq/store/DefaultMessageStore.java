@@ -15,23 +15,6 @@
  */
 package com.alibaba.rocketmq.store;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.rocketmq.common.ServiceThread;
 import com.alibaba.rocketmq.common.SystemClock;
 import com.alibaba.rocketmq.common.ThreadFactoryImpl;
@@ -51,6 +34,18 @@ import com.alibaba.rocketmq.store.index.QueryOffsetResult;
 import com.alibaba.rocketmq.store.schedule.ScheduleMessageService;
 import com.alibaba.rocketmq.store.transaction.TransactionCheckExecuter;
 import com.alibaba.rocketmq.store.transaction.TransactionStateService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -1604,56 +1599,40 @@ public class DefaultMessageStore implements MessageStore {
                         break;
                     }
 
-                    // 2、更新Transaction State Table
+                    // 2、写【事务消息】状态存储（TranStateTable）
                     if (req.getProducerGroup() != null) {
                         switch (tranType) {
                         case MessageSysFlag.TransactionNotType:
                             break;
                         case MessageSysFlag.TransactionPreparedType:
-                            // 将Prepared事务记录下来
-                            DefaultMessageStore.this.getTransactionStateService().appendPreparedTransaction(//
-                                req.getCommitLogOffset(),//
-                                req.getMsgSize(),//
-                                (int) (req.getStoreTimestamp() / 1000),//
-                                req.getProducerGroup().hashCode());
+                            // 新增 【事务消息】状态存储（TranStateTable）
+                            DefaultMessageStore.this.getTransactionStateService().appendPreparedTransaction(
+                                req.getCommitLogOffset(), req.getMsgSize(), (int) (req.getStoreTimestamp() / 1000), req.getProducerGroup().hashCode());
                             break;
                         case MessageSysFlag.TransactionCommitType:
                         case MessageSysFlag.TransactionRollbackType:
-                            DefaultMessageStore.this.getTransactionStateService().updateTransactionState(//
-                                req.getTranStateTableOffset(),//
-                                req.getPreparedTransactionOffset(),//
-                                req.getProducerGroup().hashCode(),//
-                                tranType//
-                                );
+                            // 更新 【事务消息】状态存储（TranStateTable） COMMIT / ROLLBACK
+                            DefaultMessageStore.this.getTransactionStateService().updateTransactionState(
+                                req.getTranStateTableOffset(), req.getPreparedTransactionOffset(), req.getProducerGroup().hashCode(), tranType);
                             break;
                         }
                     }
-                    // 3、记录Transaction Redo Log
+                    // 3、记录 TranRedoLog
                     switch (tranType) {
                     case MessageSysFlag.TransactionNotType:
                         break;
                     case MessageSysFlag.TransactionPreparedType:
-                        // 记录redolog
-                        DefaultMessageStore.this.getTransactionStateService().getTranRedoLog()
-                            .putMessagePostionInfoWrapper(//
-                                req.getCommitLogOffset(),//
-                                req.getMsgSize(),//
-                                TransactionStateService.PreparedMessageTagsCode,//
-                                req.getStoreTimestamp(),//
-                                0L//
-                            );
+                        // 记录 TranRedoLog
+                        DefaultMessageStore.this.getTransactionStateService().getTranRedoLog().putMessagePostionInfoWrapper(
+                                req.getCommitLogOffset(), req.getMsgSize(), TransactionStateService.PreparedMessageTagsCode,
+                                req.getStoreTimestamp(), 0L);
                         break;
                     case MessageSysFlag.TransactionCommitType:
                     case MessageSysFlag.TransactionRollbackType:
-                        // 记录redolog
-                        DefaultMessageStore.this.getTransactionStateService().getTranRedoLog()
-                            .putMessagePostionInfoWrapper(//
-                                req.getCommitLogOffset(),//
-                                req.getMsgSize(),//
-                                req.getPreparedTransactionOffset(),//
-                                req.getStoreTimestamp(),//
-                                0L//
-                            );
+                        // 记录 TranRedoLog
+                        DefaultMessageStore.this.getTransactionStateService().getTranRedoLog().putMessagePostionInfoWrapper(
+                                req.getCommitLogOffset(), req.getMsgSize(), req.getPreparedTransactionOffset(),
+                                req.getStoreTimestamp(), 0L);
                         break;
                     }
                 }

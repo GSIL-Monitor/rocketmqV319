@@ -38,14 +38,17 @@ public class TransactionProducer {
         // 队列数
         producer.setCheckRequestHoldMax(2000);
         producer.setTransactionCheckListener(transactionCheckListener);
+
+        producer.setNamesrvAddr("127.0.0.1:9876");
+
         producer.start();
 
         String[] tags = new String[] { "TagA", "TagB", "TagC", "TagD", "TagE" };
         TransactionExecuterImpl tranExecuter = new TransactionExecuterImpl();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100000; i++) {
             try {
                 Message msg =
-                        new Message("TopicTest", tags[i % tags.length], "KEY" + i,
+                        new Message("TopicTest_tran", tags[i % tags.length], "KEY" + i,
                             ("Hello RocketMQ " + i).getBytes());
                 SendResult sendResult = producer.sendMessageInTransaction(msg, tranExecuter, null);
                 System.out.println(sendResult);
