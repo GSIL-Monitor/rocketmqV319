@@ -112,7 +112,9 @@ public class MapedFile extends ReferenceResource {
         }
     }
 
-
+    /**调用DirectByteBuffer类中的cleaner.clean 方法，由于DirectByteBuffer是package的，外面并不能访问到，
+     * 所以采用反射的方式访问
+     */
     public static void clean(final ByteBuffer buffer) {
         if (buffer == null || !buffer.isDirect() || buffer.capacity() == 0)
             return;
@@ -217,7 +219,9 @@ public class MapedFile extends ReferenceResource {
 
         // 表示有空余空间
         if (currentPos < this.fileSize) {
+            //slice建立的是当前缓冲区的一个子区域，相当于原有缓冲区的一个窗口
             ByteBuffer byteBuffer = this.mappedByteBuffer.slice();
+            //设定当前的读写位置
             byteBuffer.position(currentPos);
             AppendMessageResult result =
                     cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos, msg);

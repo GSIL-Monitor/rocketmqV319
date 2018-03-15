@@ -130,7 +130,7 @@ public class DispatchRequest {
         return storeTimestamp;
     }
 
-
+    //consumeQueueOffset表示逻辑位置，相当于数组的第几个
     public long getConsumeQueueOffset() {
         return consumeQueueOffset;
     }
