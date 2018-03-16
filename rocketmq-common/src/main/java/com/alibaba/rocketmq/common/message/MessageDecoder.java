@@ -52,6 +52,7 @@ public class MessageDecoder {
 
 
     public static String createMessageId(final ByteBuffer input, final ByteBuffer addr, final long offset) {
+        //将buffer中的标志位重置
         input.flip();
         input.limit(MessageDecoder.MSG_ID_LENGTH);
 

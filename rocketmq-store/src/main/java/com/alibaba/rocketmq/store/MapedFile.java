@@ -51,7 +51,7 @@ public class MapedFile extends ReferenceResource {
     private static final AtomicInteger TotalMapedFiles = new AtomicInteger(0);
     // 映射的文件名
     private final String fileName;
-    // 映射的起始偏移量
+    // 映射的起始偏移量,当为第一个文件的位置就是0，第二个文件的时候就为前面所有mapedFileSize文件之和
     private final long fileFromOffset;
     // 映射的文件大小，定长
     private final int fileSize;
@@ -223,6 +223,7 @@ public class MapedFile extends ReferenceResource {
             ByteBuffer byteBuffer = this.mappedByteBuffer.slice();
             //设定当前的读写位置
             byteBuffer.position(currentPos);
+            //此处调用的append方法是DefaultAppendMessageCallback类的append方法
             AppendMessageResult result =
                     cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos, msg);
             this.wrotePostion.addAndGet(result.getWroteBytes());

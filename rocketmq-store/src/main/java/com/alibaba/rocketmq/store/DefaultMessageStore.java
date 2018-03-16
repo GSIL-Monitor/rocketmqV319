@@ -1589,7 +1589,7 @@ public class DefaultMessageStore implements MessageStore {
                     switch (tranType) {
                     case MessageSysFlag.TransactionNotType:
                     case MessageSysFlag.TransactionCommitType:
-                        // 将请求发到具体的Consume Queue
+                        // 将非事务消息或者commit类型的事务消息发到具体的Consume Queue,也就是half消息不会存储到consume queue中去
                         DefaultMessageStore.this.putMessagePostionInfo(req.getTopic(), req.getQueueId(),
                             req.getCommitLogOffset(), req.getMsgSize(), req.getTagsCode(),
                             req.getStoreTimestamp(), req.getConsumeQueueOffset());

@@ -588,7 +588,7 @@ public class CommitLog {
                 msg.getPreparedTransactionOffset(),// 11
                 msg.getProperty(MessageConst.PROPERTY_PRODUCER_GROUP)// 12
                     );
-
+            //将文件写入文件后进行分发
             this.defaultMessageStore.putDispatchRequest(dispatchRequest);
 
             long eclipseTime = this.defaultMessageStore.getSystemClock().now() - beginLockTimestamp;

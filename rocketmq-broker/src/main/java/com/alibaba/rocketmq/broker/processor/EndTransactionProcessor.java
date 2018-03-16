@@ -163,7 +163,7 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
                 return null;
             }
         }
-
+        //根据 commitlogOffset从commitlog中读取消息
         final MessageExt msgExt =
                 this.brokerController.getMessageStore().lookMessageByOffset(
                     requestHeader.getCommitLogOffset());

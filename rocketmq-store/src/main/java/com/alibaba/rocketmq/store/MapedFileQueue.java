@@ -232,6 +232,7 @@ public class MapedFileQueue {
         }
 
         if (mapedFileLast != null && mapedFileLast.isFull()) {
+            //表示新创建的mapfiled起始位置
             createOffset = mapedFileLast.getFileFromOffset() + this.mapedFileSize;
         }
 
@@ -460,6 +461,9 @@ public class MapedFileQueue {
             MapedFile mapedFile = this.getFirstMapedFile();
 
             if (mapedFile != null) {
+                /**获取的index需要从0开始，由于index的计算后一项是mapedFile.getFileFromOffset() / this.mapedFileSize，所以
+                 * 说明有可能第一个文件的fileFromOffset不是从零开始的
+                 */
                 int index =
                         (int) ((offset / this.mapedFileSize) - (mapedFile.getFileFromOffset() / this.mapedFileSize));
                 if (index < 0 || index >= this.mapedFiles.size()) {

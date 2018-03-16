@@ -395,7 +395,7 @@ public class ConsumeQueue {
         return this.minLogicOffset / CQStoreUnitSize;
     }
 
-
+    //将消息存储到consumeQueue中
     public void putMessagePostionInfoWrapper(long offset, int size, long tagsCode, long storeTimestamp,
             long logicOffset) {
         final int MaxRetries = 5;

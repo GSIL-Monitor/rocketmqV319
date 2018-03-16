@@ -153,7 +153,7 @@ public class TransactionStateService {
                                 // Transaction State
                                 int tranType = selectMapedBufferResult.getByteBuffer().getInt();
 
-                                // 已经提交或者回滚的消息跳过
+                                // 已经提交或者回滚的消息跳过,事务消息类型为prepared才进行回查
                                 if (tranType != MessageSysFlag.TransactionPreparedType) {
                                     continue;
                                 }
@@ -169,6 +169,7 @@ public class TransactionStateService {
 
                                 // 回查Producer
                                 try {
+                                    //i表示的是位置偏移
                                     this.transactionCheckExecuter.gotoCheck(groupHashCode, getTranStateOffset(i), clOffset, msgSize);
                                 } catch (Exception e) {
                                     tranlog.warn("gotoCheck Exception", e);
