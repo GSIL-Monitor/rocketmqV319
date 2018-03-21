@@ -455,7 +455,8 @@ public class ConsumeQueue {
 
         MapedFile mapedFile = this.mapedFileQueue.getLastMapedFile(expectLogicOffset);
         if (mapedFile != null) {
-            // 纠正MapedFile逻辑队列索引顺序
+            // 纠正MapedFile逻辑队列索引顺序,对于cqOffset不为0，且是mapedFileQueue中第一个文件，且写入位置为
+            //起始位置的，需要对位置进行矫正，矫正办法就是在文件开头进行填充同时设置minLogicOffset的值
             if (mapedFile.isFirstCreateInQueue() && cqOffset != 0 && mapedFile.getWrotePostion() == 0) {
                 this.minLogicOffset = expectLogicOffset;
                 this.fillPreBlank(mapedFile, expectLogicOffset);

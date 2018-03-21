@@ -91,8 +91,11 @@ public class Producer {
             String keys = commandLine.getOptionValue('k');
             String msgCount = commandLine.getOptionValue('c');
 
+            System.setProperty("rocketmq.namesrv.addr", "192.168.39.129:9876");
+
             DefaultMQProducer producer = new DefaultMQProducer(group);
             producer.setInstanceName(Long.toString(System.currentTimeMillis()));
+            //producer.setVipChannelEnabled(false);
 
             producer.start();
 

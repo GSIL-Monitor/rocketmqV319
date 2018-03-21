@@ -90,15 +90,16 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request)
             throws RemotingCommandException {
+        logTransaction.warn("********* enter EndTransactionProcessor processRequest*************");
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
         final EndTransactionRequestHeader requestHeader =
                 (EndTransactionRequestHeader) request
                     .decodeCommandCustomHeader(EndTransactionRequestHeader.class);
 
-        // 回查应答
+        // broker发送回查请求后的回答,回查应答
         if (requestHeader.getFromTransactionCheck()) {
             switch (requestHeader.getCommitOrRollback()) {
-            // 不提交也不回滚
+            // 不晓得结果的消息既不提交也不回滚
             case MessageSysFlag.TransactionNotType: {
                 logTransaction.warn("check producer[{}] transaction state, but it's pending status.\n"//
                         + "RequestHeader: {} Remark: {}",//
@@ -132,7 +133,7 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
                 return null;
             }
         }
-        // 正常提交回滚
+        // 用户发过来的commit或者rollback,正常提交或回滚
         else {
             switch (requestHeader.getCommitOrRollback()) {
             // 不提交也不回滚

@@ -45,6 +45,7 @@ public class DefaultTransactionCheckExecuter implements TransactionCheckExecuter
     @Override
     public void gotoCheck(int producerGroupHashCode, long tranStateTableOffset, long commitLogOffset,
             int msgSize) {
+        log.warn("***********enter gotoCheck function*****************");
         // 第一步、查询Producer
         final ClientChannelInfo clientChannelInfo = this.brokerController.getProducerManager().pickProducerChannelRandomly(producerGroupHashCode);
         if (null == clientChannelInfo) {

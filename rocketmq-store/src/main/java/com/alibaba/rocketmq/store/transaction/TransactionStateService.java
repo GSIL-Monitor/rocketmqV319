@@ -102,6 +102,7 @@ public class TransactionStateService {
      */
     private void initTimerTask() {
         // 每个文件初始化定时任务
+        tranlog.warn("********* TransactionStateService initTimerTask ************");
         final List<MapedFile> mapedFiles = this.tranStateTable.getMapedFiles();
         for (MapedFile mf : mapedFiles) {
             this.addTimerTask(mf);

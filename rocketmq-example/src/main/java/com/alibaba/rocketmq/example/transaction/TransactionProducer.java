@@ -30,7 +30,7 @@ public class TransactionProducer {
     public static void main(String[] args) throws MQClientException, InterruptedException {
 
         TransactionCheckListener transactionCheckListener = new TransactionCheckListenerImpl();
-        TransactionMQProducer producer = new TransactionMQProducer("please_rename_unique_group_name");
+        TransactionMQProducer producer = new TransactionMQProducer("producer-b");
         // 事务回查最小并发数
         producer.setCheckThreadPoolMinSize(2);
         // 事务回查最大并发数
@@ -39,16 +39,16 @@ public class TransactionProducer {
         producer.setCheckRequestHoldMax(2000);
         producer.setTransactionCheckListener(transactionCheckListener);
 
-        producer.setNamesrvAddr("127.0.0.1:9876");
+        producer.setNamesrvAddr("192.168.39.129:9876");
 
         producer.start();
 
         String[] tags = new String[] { "TagA", "TagB", "TagC", "TagD", "TagE" };
         TransactionExecuterImpl tranExecuter = new TransactionExecuterImpl();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 10; i++) {
             try {
                 Message msg =
-                        new Message("TopicTest_tran", tags[i % tags.length], "KEY" + i,
+                        new Message("topic-k", tags[i % tags.length], "KEY" + i,
                             ("Hello RocketMQ " + i).getBytes());
                 SendResult sendResult = producer.sendMessageInTransaction(msg, tranExecuter, null);
                 System.out.println(sendResult);

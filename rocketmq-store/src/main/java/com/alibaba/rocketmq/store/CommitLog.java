@@ -503,7 +503,7 @@ public class CommitLog {
         final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());
         if (tranType == MessageSysFlag.TransactionNotType//
                 || tranType == MessageSysFlag.TransactionCommitType) {
-            // 延时投递
+            // 延时投递,如果是延时消息的话就要延时投递
             if (msg.getDelayTimeLevel() > 0) {
                 if (msg.getDelayTimeLevel() > this.defaultMessageStore.getScheduleMessageService()
                     .getMaxDelayLevel()) {
@@ -588,7 +588,7 @@ public class CommitLog {
                 msg.getPreparedTransactionOffset(),// 11
                 msg.getProperty(MessageConst.PROPERTY_PRODUCER_GROUP)// 12
                     );
-            //将文件写入文件后进行分发
+            //将消息写入文件后进行分发
             this.defaultMessageStore.putDispatchRequest(dispatchRequest);
 
             long eclipseTime = this.defaultMessageStore.getSystemClock().now() - beginLockTimestamp;
